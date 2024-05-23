@@ -1,12 +1,20 @@
+### SVM MODEL ###
+
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn import svm  # library for SVM
 
 # load dataset
 df = pd.read_csv('healthcare-dataset-stroke-data.csv')
 
+#intializing model
+model = svm.SVC()
+
+
+'''
 #display first five subjects
 display(df.head(5))
 
@@ -84,8 +92,4 @@ plt.ylabel('Count')
 plt.xticks(rotation=0)  # Rotate x-axis labels if needed
 plt.legend(title='Stroke', labels=['No Stroke', 'Stroke'])
 plt.show()
-
-
-
-
-
+'''
