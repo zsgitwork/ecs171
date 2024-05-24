@@ -12,8 +12,9 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.model_selection import train_test_split  #library to split test/train data
+from sklearn.model_selection import train_test_split, GridSearchCV  #library to split test/train data + find optimal params
 from sklearn import svm  #library for SVM
+from sklearn.metrics import mean_squared_error, accuracy_score, classification_report  #library to calc MSE, accuracy, clasification report
 
 
 # load dataset
@@ -50,3 +51,17 @@ model.fit(X_train, y_train)
 
 #make predictions with test data
 y_pred = model.predict(X_test)
+
+#calculating MSE
+MSE = mean_squared_error(y_test, y_pred)
+print("MSE: ", MSE)
+
+#calculating accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy: ", accuracy)
+
+#calculating classification report
+cr = classification_report(y_test, y_pred)
+print("Classification Report:\n", cr)
+
+#note: displaying may be difficult bc so many features, will have to choose specific ones!
