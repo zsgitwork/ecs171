@@ -15,6 +15,7 @@ import seaborn as sns
 from sklearn.model_selection import train_test_split, GridSearchCV  #library to split test/train data + find optimal params
 from sklearn import svm  #library for SVM
 from sklearn.metrics import mean_squared_error, accuracy_score, classification_report  #library to calc MSE, accuracy, clasification report
+from sklearn.preprocessing import MinMaxScaler
 
 
 # load dataset
@@ -33,6 +34,9 @@ df = pd.get_dummies(df, columns=categories)
 # Fill missing vals of bmi with mean
 df['bmi'] = df['bmi'].fillna(df['bmi'].mean())
 
+#printing new data shape
+print(df.shape)
+
 #display head of csv file (just to visualize)
 print(df.head())
 
@@ -41,7 +45,12 @@ X = df.drop(columns=['stroke'])  #input data = all features EXCEPT STROKE
 y = df['stroke']  #target variable = stroke 
 
 #split into training and test data 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+
+# scale the data
+scaler = MinMaxScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
 
 #intializing model
 model = svm.SVC()
@@ -50,7 +59,22 @@ model = svm.SVC()
 model.fit(X_train, y_train)
 
 #make predictions with test data
-y_pred = model.predict(X_test)
+#y_pred = model.predict(X_test)
+
+param_grid = {
+    'C': [0.1, 1],
+    'gamma': [0.1, 1],
+    'kernel': ['linear', 'polynomial', 'rbf', 'sigmoid']
+}
+
+grid_search = GridSearchCV(model, param_grid)
+grid_search.fit(X_train, y_train)
+
+best_svm = grid_search.best_estimator_
+y_pred = best_svm.predict(X_test)
+
+print("Optimal Hyper-parameters : ", grid_search.best_params_)
+print("Optimal Accuracy : ", grid_search.best_score_)
 
 #calculating MSE
 MSE = mean_squared_error(y_test, y_pred)
