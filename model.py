@@ -9,7 +9,9 @@ from sklearn.metrics import classification_report, accuracy_score, mean_squared_
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import MinMaxScaler
-
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from imblearn.over_sampling import SMOTE
 # load dataset
 df = pd.read_csv('healthcare-dataset-stroke-data.csv')
 #display first five subjects
@@ -20,70 +22,73 @@ df = df.drop(columns=['id'])
 categories = ['gender', 'ever_married', 'work_type', 'Residence_type', 'smoking_status']
 df = pd.get_dummies(df, columns=categories)
 
+
+numerical_columns = ['age', 'avg_glucose_level', 'bmi']
+
 print("\nColumns with empty values: ", df.columns[df.isna().any()]) # bmi
-# Fill bmi with mean
+# # Fill bmi with mean
 df['bmi'] = df['bmi'].fillna(df['bmi'].mean())
 print(df.shape)
 
-# #correlation matrix for numeric features
-# numeric_columns = df.select_dtypes(include=[np.number])
-# correlation_matrix = numeric_columns.corr()
-# print("Correlation matrix for numeric features")
-# print(correlation_matrix)
+#correlation matrix for numeric features
+numeric_columns = df.select_dtypes(include=[np.number])
+correlation_matrix = numeric_columns.corr()
+print("Correlation matrix for numeric features")
+print(correlation_matrix)
 
-# #heatmap
-# plt.figure(figsize=(10, 8))
-# sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f")
-# plt.title('Correlation Matrix Heatmap')
-# plt.show()
+#heatmap
+plt.figure(figsize=(10, 8))
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f")
+plt.title('Correlation Matrix Heatmap')
+plt.show()
 
-# #print mean, median, std, etc. for numeric features
-# print("Describe all numeric features:")
-# print(df.describe())
+#print mean, median, std, etc. for numeric features
+print("Describe all numeric features:")
+print(df.describe())
 
-# #print mean, mediam, std, etc. based off if subject had a stroke or not
-# stroke_positive = df[df['stroke'] == 1]
-# stroke_negative = df[df['stroke'] == 0]
-# print("\nHad stroke:")
-# print(stroke_positive.describe())
-# print("\nDid not have stroke:")
-# print(stroke_negative.describe())
+#print mean, mediam, std, etc. based off if subject had a stroke or not
+stroke_positive = df[df['stroke'] == 1]
+stroke_negative = df[df['stroke'] == 0]
+print("\nHad stroke:")
+print(stroke_positive.describe())
+print("\nDid not have stroke:")
+print(stroke_negative.describe())
 
 #plot age
-# avg_age_stroke = df[df['stroke'] == 1]['age'].mean()
-# avg_age_no_stroke = df[df['stroke'] == 0]['age'].mean()
+avg_age_stroke = df[df['stroke'] == 1]['age'].mean()
+avg_age_no_stroke = df[df['stroke'] == 0]['age'].mean()
 
-# # Plotting the bar chart
-# plt.figure(figsize=(8, 6))
-# plt.bar(['Stroke', 'No Stroke'], [avg_age_stroke, avg_age_no_stroke], color=['skyblue', 'salmon'], edgecolor='black')
-# plt.title('Average Age of Individuals with and Without Stroke')
-# plt.xlabel('Stroke')
-# plt.ylabel('Average Age')
-# plt.show()
+# Plotting the bar chart
+plt.figure(figsize=(8, 6))
+plt.bar(['Stroke', 'No Stroke'], [avg_age_stroke, avg_age_no_stroke], color=['skyblue', 'salmon'], edgecolor='black')
+plt.title('Average Age of Individuals with and Without Stroke')
+plt.xlabel('Stroke')
+plt.ylabel('Average Age')
+plt.show()
 
-# avg_bmi_stroke = df[df['stroke'] == 1]['bmi'].mean()
-# avg_bmi_no_stroke = df[df['stroke'] == 0]['bmi'].mean()
+avg_bmi_stroke = df[df['stroke'] == 1]['bmi'].mean()
+avg_bmi_no_stroke = df[df['stroke'] == 0]['bmi'].mean()
 
-# # Plotting the bar chart
-# plt.figure(figsize=(8, 6))
-# plt.bar(['Stroke', 'No Stroke'], [avg_bmi_stroke, avg_bmi_no_stroke], color=['skyblue', 'salmon'], edgecolor='black')
-# plt.title('Average BMI of Individuals with and Without Stroke')
-# plt.xlabel('Stroke')
-# plt.ylabel('Average BMI')
-# plt.show()
+# Plotting the bar chart
+plt.figure(figsize=(8, 6))
+plt.bar(['Stroke', 'No Stroke'], [avg_bmi_stroke, avg_bmi_no_stroke], color=['skyblue', 'salmon'], edgecolor='black')
+plt.title('Average BMI of Individuals with and Without Stroke')
+plt.xlabel('Stroke')
+plt.ylabel('Average BMI')
+plt.show()
 
-# #plotting average glucose level
+#plotting average glucose level
 
-# avg_gl_stroke = df[df['stroke'] == 1]['avg_glucose_level'].mean()
-# avg_gl_no_stroke = df[df['stroke'] == 0]['avg_glucose_level'].mean()
+avg_gl_stroke = df[df['stroke'] == 1]['avg_glucose_level'].mean()
+avg_gl_no_stroke = df[df['stroke'] == 0]['avg_glucose_level'].mean()
 
-# # Plotting the bar chart
-# plt.figure(figsize=(8, 6))
-# plt.bar(['Stroke', 'No Stroke'], [avg_gl_stroke, avg_gl_no_stroke], color=['skyblue', 'salmon'], edgecolor='black')
-# plt.title('Average Glucose Level of Individuals with and Without Stroke')
-# plt.xlabel('Stroke')
-# plt.ylabel('Average Glucose Level')
-# plt.show()
+# Plotting the bar chart
+plt.figure(figsize=(8, 6))
+plt.bar(['Stroke', 'No Stroke'], [avg_gl_stroke, avg_gl_no_stroke], color=['skyblue', 'salmon'], edgecolor='black')
+plt.title('Average Glucose Level of Individuals with and Without Stroke')
+plt.xlabel('Stroke')
+plt.ylabel('Average Glucose Level')
+plt.show()
 
 
 # df['stroke_label'] = df['stroke'].map({0: 'No Stroke', 1: 'Stroke'})
@@ -105,7 +110,7 @@ print(df.shape)
 
 #normalize data
 num = ["age", "avg_glucose_level", "bmi"]
-scaler = MinMaxScaler(feature_range=(0, 1))
+scaler = StandardScaler()
 df[num] = scaler.fit_transform(df[num])
 
 #create data frame with featues and target 
@@ -113,7 +118,11 @@ X = df.drop('stroke', axis=1)
 y = df['stroke']
 
 #split into training and test data 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+
+#apply smote 
+smote = SMOTE(random_state=42)
+x_smote, y_smote = smote.fit_resample(X_train, y_train)
 
 rf = RandomForestClassifier()
 
@@ -122,13 +131,26 @@ param_grid = {
     'max_depth': [5, 10, None],
 }
 grid_search = GridSearchCV(rf, param_grid)
-grid_search.fit(X_train, y_train)
+grid_search.fit(x_smote, y_smote)
 
 best_rf = grid_search.best_estimator_
 y_pred = best_rf.predict(X_test)
 
-print("Optimal Hyper-parameters : ", grid_search.best_params_)
-print("Optimal Accuracy : ", grid_search.best_score_)
-print("Test Accuracy: ", accuracy_score(y_test, y_pred))
-print("Mean Squared Error : ", mean_squared_error(y_test, y_pred))
+print("RF Optimal Accuracy with Grid Search: ", grid_search.best_score_)
+print("RF Test Accuracy: ", accuracy_score(y_test, y_pred))
+print("RF Mean Squared Error : ", mean_squared_error(y_test, y_pred))
+print(classification_report(y_test, y_pred))
+
+
+param_grid = {
+    'C': [0.1, 1],
+    'gamma': [0.1, 1],
+    'kernel': ['linear', 'polynomial', 'rbf', 'sigmoid']
+}
+
+grid_search = GridSearchCV(SVC(), param_grid)
+grid_search.fit(X_train, y_train)
+
+print("SVM Test Accuracy: ", accuracy_score(y_test, y_pred))
+print("SVM Mean Squared Error : ", mean_squared_error(y_test, y_pred))
 print(classification_report(y_test, y_pred))
