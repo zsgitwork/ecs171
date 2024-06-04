@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, roc_curve, roc_auc_score
 from sklearn.preprocessing import StandardScaler
+from imblearn.over_sampling import SMOTE
 
 import matplotlib.pyplot as plt
 
@@ -35,6 +36,10 @@ y = df['stroke']
 
 # Split the data into training and testing sets 75:25
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+
+# apply SMOTE to balance the data
+smote = SMOTE(random_state=42)
+X_train, y_train = smote.fit_resample(X_train, y_train)
 
 # scale the data
 scaler = StandardScaler()
