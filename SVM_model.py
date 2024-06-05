@@ -81,9 +81,9 @@ y_pred = best_svm.predict(X_test)
 print("Optimal Hyper-parameters : ", grid_search.best_params_)
 print("Optimal Accuracy : ", grid_search.best_score_)
 
-#calculating MSE
-MSE = mean_squared_error(y_test, y_pred)
-print("MSE: ", MSE)
+#calculating MSE -> dont use MSE for classification
+#MSE = mean_squared_error(y_test, y_pred)
+#print("MSE: ", MSE)
 
 #calculating accuracy
 accuracy = accuracy_score(y_test, y_pred)
