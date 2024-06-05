@@ -16,6 +16,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV  #library to 
 from sklearn import svm  #library for SVM
 from sklearn.metrics import mean_squared_error, accuracy_score, classification_report  #library to calc MSE, accuracy, clasification report
 from sklearn.preprocessing import MinMaxScaler
+from imblearn.over_sampling import SMOTE
 
 
 # load dataset
@@ -47,6 +48,10 @@ y = df['stroke']  #target variable = stroke
 #split into training and test data 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
+#apply smote 
+smote = SMOTE(random_state=42)
+x_smote, y_smote = smote.fit_resample(X_train, y_train)
+
 # scale the data
 scaler = MinMaxScaler()
 X_train = scaler.fit_transform(X_train)
@@ -62,8 +67,8 @@ model.fit(X_train, y_train)
 #y_pred = model.predict(X_test)
 
 param_grid = {
-    'C': [0.1, 1],
-    'gamma': [0.1, 1],
+    'C': [0.1, 1, 10],
+    'gamma': [0.1, 1, 10],
     'kernel': ['linear', 'polynomial', 'rbf', 'sigmoid']
 }
 
