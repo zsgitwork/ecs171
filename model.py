@@ -151,6 +151,8 @@ param_grid = {
 grid_search = GridSearchCV(SVC(), param_grid)
 grid_search.fit(X_train, y_train)
 
+#print optimal accuracy
+print("SVM Optimal Accuracy with Grid Search: ", grid_search.best_score_)
 print("SVM Test Accuracy: ", accuracy_score(y_test, y_pred))
 print("SVM Mean Squared Error : ", mean_squared_error(y_test, y_pred))
 print(classification_report(y_test, y_pred))
