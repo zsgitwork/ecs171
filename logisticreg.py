@@ -5,6 +5,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, roc_curve, roc_auc_score
 from sklearn.preprocessing import StandardScaler
 from imblearn.over_sampling import SMOTE
+from sklearn.model_selection import GridSearchCV
 
 import matplotlib.pyplot as plt
 
@@ -58,6 +59,33 @@ y_pred = model.predict(X_test)
 # Evaluate the model
 accuracy = accuracy_score(y_test, y_pred)
 print("Accuracy:", accuracy)
+
+# Define the parameter grid for GridSearchCV
+param_grid = {
+    'C': [0.01, 0.1, 1, 10, 100],  # Regularization strength
+    'solver': ['liblinear', 'saga'],  # Solvers that support L1 regularization
+    'penalty': ['l1', 'l2'],  # Regularization norms
+    'max_iter': [100, 200, 300]  # Maximum number of iterations
+}
+
+# Perform grid search with cross-validation
+grid_search = GridSearchCV(model, param_grid, cv=5, scoring='accuracy', n_jobs=-1)
+grid_search.fit(X_train, y_train)
+
+# Get the best parameters and best score
+best_params = grid_search.best_params_
+best_score = grid_search.best_score_
+
+# Train the model with the best parameters
+best_model = grid_search.best_estimator_
+best_model.fit(X_train, y_train)
+
+# Make predictions on the test set
+y_pred = best_model.predict(X_test)
+
+# Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+print("Optimal Accuracy:", accuracy)
 
 # Visualization of Logistic Regression Model through ROC Curve
 # Calculate the probabilities for the ROC curve
