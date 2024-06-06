@@ -12,6 +12,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from imblearn.over_sampling import SMOTE
+from sklearn.metrics import accuracy_score, roc_curve, roc_auc_score
 # load dataset
 df = pd.read_csv('healthcare-dataset-stroke-data.csv')
 #display first five subjects
@@ -91,10 +92,11 @@ plt.ylabel('Average Glucose Level')
 plt.show()
 
 
+
 # df['stroke_label'] = df['stroke'].map({0: 'No Stroke', 1: 'Stroke'})
 
-# Group the data by gender and stroke status, and count the occurrences
-#grouped_data = df.groupby(['gender', 'stroke_label']).size().unstack()
+# # Group the data by gender and stroke status, and count the occurrences
+# grouped_data = df.groupby(['gender', 'stroke_label']).size().unstack()
 
 # # Plotting the stacked bar chart
 # grouped_data.plot(kind='bar', stacked=True)
@@ -104,7 +106,6 @@ plt.show()
 # plt.xticks(rotation=0)  # Rotate x-axis labels if needed
 # plt.legend(title='Stroke', labels=['No Stroke', 'Stroke'])
 # plt.show()
-
 
 #Random Forest Model-Divya 
 
@@ -119,6 +120,8 @@ y = df['stroke']
 
 #split into training and test data 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+print(df)
+print(X)
 
 #apply smote 
 smote = SMOTE(random_state=42)
@@ -133,24 +136,35 @@ param_grid = {
 grid_search = GridSearchCV(rf, param_grid)
 grid_search.fit(x_smote, y_smote)
 
-best_rf = grid_search.best_estimator_
-y_pred = best_rf.predict(X_test)
+best_rdf = grid_search.best_estimator_
+y_pred = best_rdf.predict(X_test)
 
 print("RF Optimal Accuracy with Grid Search: ", grid_search.best_score_)
 print("RF Test Accuracy: ", accuracy_score(y_test, y_pred))
-print("RF Mean Squared Error : ", mean_squared_error(y_test, y_pred))
 print(classification_report(y_test, y_pred))
 
 
-param_grid = {
-    'C': [0.1, 1],
-    'gamma': [0.1, 1],
-    'kernel': ['linear', 'polynomial', 'rbf', 'sigmoid']
-}
+# Visualization of Random Forest Model through ROC Curve
+# Calculate the probabilities for the ROC curve
+y_prob = best_rdf.predict_proba(X_test)[:, 1]
 
-grid_search = GridSearchCV(SVC(), param_grid)
-grid_search.fit(X_train, y_train)
+# Calculate the false positive rate and true positive rate for the ROC curve
+fpr, tpr, thresholds = roc_curve(y_test, y_prob)
 
-print("SVM Test Accuracy: ", accuracy_score(y_test, y_pred))
-print("SVM Mean Squared Error : ", mean_squared_error(y_test, y_pred))
-print(classification_report(y_test, y_pred))
+# Calculate the area under the ROC curve
+auc = roc_auc_score(y_test, y_prob)
+
+# Plot the ROC curve
+plt.figure(figsize=(8, 6))
+plt.plot(fpr, tpr, label='Random Forest (AUC = {:.2f})'.format(auc))
+plt.plot([0, 1], [0, 1], color='red', linestyle='--')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('ROC Curve')
+plt.legend(loc='lower right')
+# plt.show()
+
+from joblib import dump
+
+dump(best_rdf, "./utils/model.joblib")
+dump(scaler, "./utils/scaler.joblib")
