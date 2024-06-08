@@ -129,42 +129,42 @@ x_smote, y_smote = smote.fit_resample(X_train, y_train)
 
 rf = RandomForestClassifier()
 
-param_grid = {
-    'n_estimators': [300, 500, 1000],
-    'max_depth': [5, 10, None],
-}
-grid_search = GridSearchCV(rf, param_grid)
-grid_search.fit(x_smote, y_smote)
+# param_grid = {
+#     'n_estimators': [300, 500, 1000],
+#     'max_depth': [5, 10, None],
+# }
+# grid_search = GridSearchCV(rf, param_grid)
+# grid_search.fit(x_smote, y_smote)
 
-best_rdf = grid_search.best_estimator_
-y_pred = best_rdf.predict(X_test)
+# best_rdf = grid_search.best_estimator_
+# y_pred = best_rdf.predict(X_test)
 
-print("RF Optimal Accuracy with Grid Search: ", grid_search.best_score_)
-print("RF Test Accuracy: ", accuracy_score(y_test, y_pred))
-print(classification_report(y_test, y_pred))
+# print("RF Optimal Accuracy with Grid Search: ", grid_search.best_score_)
+# print("RF Test Accuracy: ", accuracy_score(y_test, y_pred))
+# print(classification_report(y_test, y_pred))
 
 
-# Visualization of Random Forest Model through ROC Curve
-# Calculate the probabilities for the ROC curve
-y_prob = best_rdf.predict_proba(X_test)[:, 1]
+# # Visualization of Random Forest Model through ROC Curve
+# # Calculate the probabilities for the ROC curve
+# y_prob = best_rdf.predict_proba(X_test)[:, 1]
 
-# Calculate the false positive rate and true positive rate for the ROC curve
-fpr, tpr, thresholds = roc_curve(y_test, y_prob)
+# # Calculate the false positive rate and true positive rate for the ROC curve
+# fpr, tpr, thresholds = roc_curve(y_test, y_prob)
 
-# Calculate the area under the ROC curve
-auc = roc_auc_score(y_test, y_prob)
+# # Calculate the area under the ROC curve
+# auc = roc_auc_score(y_test, y_prob)
 
-# Plot the ROC curve
-plt.figure(figsize=(8, 6))
-plt.plot(fpr, tpr, label='Random Forest (AUC = {:.2f})'.format(auc))
-plt.plot([0, 1], [0, 1], color='red', linestyle='--')
-plt.xlabel('False Positive Rate')
-plt.ylabel('True Positive Rate')
-plt.title('ROC Curve')
-plt.legend(loc='lower right')
-# plt.show()
+# # Plot the ROC curve
+# plt.figure(figsize=(8, 6))
+# plt.plot(fpr, tpr, label='Random Forest (AUC = {:.2f})'.format(auc))
+# plt.plot([0, 1], [0, 1], color='red', linestyle='--')
+# plt.xlabel('False Positive Rate')
+# plt.ylabel('True Positive Rate')
+# plt.title('ROC Curve')
+# plt.legend(loc='lower right')
+# # plt.show()
 
-from joblib import dump
+# from joblib import dump
 
-dump(best_rdf, "./utils/model.joblib")
-dump(scaler, "./utils/scaler.joblib")
+# dump(best_rdf, "./utils/model.joblib")
+# dump(scaler, "./utils/scaler.joblib")
