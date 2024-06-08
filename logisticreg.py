@@ -1,12 +1,10 @@
 import pandas as pd
 import seaborn as sns
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, roc_curve, roc_auc_score
 from sklearn.preprocessing import StandardScaler
 from imblearn.over_sampling import SMOTE
-from sklearn.model_selection import GridSearchCV
-
 import matplotlib.pyplot as plt
 
 # Load the dataset
@@ -65,7 +63,7 @@ param_grid = {
     'C': [0.01, 0.1, 1, 10, 100],  # Regularization strength
     'solver': ['liblinear', 'saga'],  # Solvers that support L1 regularization
     'penalty': ['l1', 'l2'],  # Regularization norms
-    'max_iter': [100, 200, 300]  # Maximum number of iterations
+    'max_iter': [1000, 2000, 3000]  # Maximum number of iterations
 }
 
 # Perform grid search with cross-validation
